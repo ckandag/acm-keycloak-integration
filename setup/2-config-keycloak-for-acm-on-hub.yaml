@@ -1,0 +1,36 @@
+---
+apiVersion: keycloak.org/v1alpha1
+kind: Keycloak
+metadata:
+  labels:
+    app: sso
+  name: example-keycloak
+  namespace: keycloak
+spec:
+  externalAccess:
+    enabled: true
+  instances: 1
+  keycloakDeploymentSpec:
+    experimental:
+      env:
+        - name: JAVA_TOOL_OPTIONS
+          value: '-Dcom.redhat.fips=false'
+    imagePullPolicy: Always
+---
+apiVersion: keycloak.org/v1alpha1
+kind: KeycloakRealm
+metadata:
+  name: acm
+  namespace: keycloak
+  labels:
+    app: sso
+spec:
+  instanceSelector:
+    matchLabels:
+      app: sso
+  realm:
+    displayName: Basic Realm
+    enabled: true
+    id: acm
+    realm: acm
+---

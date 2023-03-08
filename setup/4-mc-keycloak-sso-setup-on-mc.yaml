@@ -1,0 +1,60 @@
+---
+apiVersion: v1
+data:
+   # "Hub" template to setup the client-secret
+  clientSecret: xxx
+kind: Secret
+metadata:
+  name: openid-client-secret
+  namespace: openshift-config
+type: Opaque
+
+---
+
+apiVersion: v1
+data:
+  # "Hub" template  to generate the cert content 
+  ca.crt: |
+    -----BEGIN CERTIFICATE-----
+    -----END CERTIFICATE-----
+
+kind: ConfigMap
+metadata:
+  name: openidcacrt
+  namespace: openshift-config
+
+---
+
+apiVersion: config.openshift.io/v1
+kind: OAuth
+metadata:
+  name: cluster
+spec:
+  identityProviders:
+    - name: rhsso
+      mappingMethod: claim
+      type: OpenID
+      openID:
+        clientID: openshift
+        clientSecret:
+          name: openid-client-secret
+        ca:
+          name: openidcacrt
+        extraScopes:
+          - email
+          - profile
+        extraAuthorizeParameters:
+          include_granted_scopes: "true"
+        claims:
+          preferredUsername:
+            - preferred_username
+            - email
+          name:
+            - nickname
+            - given_name
+            - name
+          email:
+            - custom_email_claim
+            - email
+        # template to generate this url  <  hostname and realm name >
+        issuer: https://keycloak-keycloak.apps.xxxx/auth/realms/acm

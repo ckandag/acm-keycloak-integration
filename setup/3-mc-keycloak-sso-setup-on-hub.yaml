@@ -1,0 +1,39 @@
+#this needs to be setup on Hub cluster i.e "local-cluster"
+
+---
+apiVersion: v1
+data:
+  clientSecret: xxx
+kind: Secret
+metadata:
+  name: openid-client-secret
+  namespace: openshift-config
+type: Opaque
+
+---
+
+apiVersion: keycloak.org/v1alpha1
+kind: KeycloakClient
+metadata:
+  name: ocptest-client
+  namespace: keycloak
+  labels:
+    app: sso
+spec:
+  realmSelector:
+    matchLabels:
+      app: sso
+  client:
+    clientId: ocp-test
+    realm: acm
+    secret: xxx
+    clientAuthenticatorType: client-secret
+    consentRequired: false
+    standardFlowEnabled: true
+    implicitFlowEnabled: true
+    directAccessGrantsEnabled: true
+    redirectUris:
+      # template this url
+      - "https://oauth-openshift.apps.xxxx/oauth2callback/keycloak2"
+
+---
